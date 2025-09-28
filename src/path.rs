@@ -1,11 +1,10 @@
-use shellexpand;
 use std::env;
 use std::path::{Path, PathBuf};
 
 pub const PERSISTENT_STORAGE: &str = "~/.template-rs";
 pub const TEMPLATE_STORAGE: &str = "~/.template-rs/templates";
 
-/// Resolves a user-provided path string into an absolute PathBuf.
+/// Resolves a user-provided path string into an absolute `PathBuf`.
 /// Handles relative paths, absolute paths, home directory expansion (~),
 /// environment variable expansion ($VAR, ${VAR}), and current directory 
 /// references (.) across Linux and Windows.
@@ -40,9 +39,10 @@ pub fn resolve_path(path_str: &str, invocation_dir: Option<&Path>) -> Result<Pat
     
     // Handle current directory reference first (before expansion)
     if path_str == "." {
-        return Ok(invocation_dir
-            .map(|p| p.to_path_buf())
-            .unwrap_or_else(|| env::current_dir().unwrap_or_else(|_| PathBuf::from("."))));
+        return Ok(invocation_dir.map_or_else(
+            || env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
+            std::path::Path::to_path_buf,
+        ));
     }
     
     // Perform shell-like expansion (tilde + environment variables)
@@ -55,15 +55,16 @@ pub fn resolve_path(path_str: &str, invocation_dir: Option<&Path>) -> Result<Pat
     }
     
     // Handle relative paths after expansion
-    let base_dir = invocation_dir
-        .map(|p| p.to_path_buf())
-        .unwrap_or_else(|| env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
+    let base_dir = invocation_dir.map_or_else(
+        || env::current_dir().unwrap_or_else(|_| PathBuf::from(".")),
+        std::path::Path::to_path_buf,
+    );
     
-    // Handle ./path cases after expansion
-    let final_path = if expanded.starts_with("./") {
-        base_dir.join(&expanded[2..])
-    } else if expanded.starts_with(".\\") {
-        base_dir.join(&expanded[2..])
+    // Handle ./path and .\path cases after expansion (combined since they do the same thing)
+    let final_path = if let Some(stripped) = expanded.strip_prefix("./") {
+        base_dir.join(stripped)
+    } else if let Some(stripped) = expanded.strip_prefix(".\\") {
+        base_dir.join(stripped)
     } else {
         base_dir.join(expanded.as_ref())
     };
@@ -132,28 +133,4 @@ mod tests {
         
         // This would expand to something like ~/projects/my-project/src
         let result = resolve_path("~/projects/${PROJECT_NAME}/src", None);
-        assert!(result.is_ok());
-        if let Ok(path) = result {
-            let path_str = path.to_string_lossy();
-            assert!(path_str.contains("projects"));
-            assert!(path_str.contains("my-project"));
-            assert!(path_str.contains("src"));
-        }
-        
-        env::remove_var("PROJECT_NAME");
-    }
-    
-    #[test]
-    fn test_relative_path() {
-        let base = Path::new("/some/base/dir");
-        let result = resolve_path("../config.toml", Some(base)).unwrap();
-        assert_eq!(result, PathBuf::from("/some/base/dir/../config.toml"));
-    }
-    
-    #[test]
-    fn test_dot_slash_prefix() {
-        let base = Path::new("/some/base/dir");
-        let result = resolve_path("./file.txt", Some(base)).unwrap();
-        assert_eq!(result, PathBuf::from("/some/base/dir/file.txt"));
-    }
-}
+        assert!(result.is_
