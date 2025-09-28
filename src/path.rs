@@ -2,6 +2,9 @@ use shellexpand;
 use std::env;
 use std::path::{Path, PathBuf};
 
+pub const PERSISTENT_STORAGE: &str = "~/.template-rs";
+pub const TEMPLATE_STORAGE: &str = "~/.template-rs/templates";
+
 /// Resolves a user-provided path string into an absolute PathBuf.
 /// Handles relative paths, absolute paths, home directory expansion (~),
 /// environment variable expansion ($VAR, ${VAR}), and current directory 
