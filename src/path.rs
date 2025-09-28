@@ -75,7 +75,6 @@ pub fn resolve_path(path_str: &str, invocation_dir: Option<&Path>) -> Result<Pat
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
     use std::env;
     
     #[test]
@@ -113,8 +112,10 @@ mod tests {
     
     #[test]
     fn test_env_var_expansion() {
-        // Set a test environment variable
-        env::set_var("TEST_PATH", "/test/directory");
+        // Set a test environment variable (wrapped in unsafe)
+        unsafe {
+            env::set_var("TEST_PATH", "/test/directory");
+        }
         
         let result = resolve_path("$TEST_PATH/file.txt", None).unwrap();
         assert!(result.to_string_lossy().contains("/test/directory/file.txt"));
@@ -123,13 +124,17 @@ mod tests {
         let result = resolve_path("${TEST_PATH}/config.toml", None).unwrap();
         assert!(result.to_string_lossy().contains("/test/directory/config.toml"));
         
-        // Clean up
-        env::remove_var("TEST_PATH");
+        // Clean up (wrapped in unsafe)
+        unsafe {
+            env::remove_var("TEST_PATH");
+        }
     }
     
     #[test]
     fn test_combined_expansion() {
-        env::set_var("PROJECT_NAME", "my-project");
+        unsafe {
+            env::set_var("PROJECT_NAME", "my-project");
+        }
         
         // This would expand to something like ~/projects/my-project/src
         let result = resolve_path("~/projects/${PROJECT_NAME}/src", None);
@@ -141,7 +146,9 @@ mod tests {
         }
         
         // Clean up
-        env::remove_var("PROJECT_NAME");
+        unsafe {
+            env::remove_var("PROJECT_NAME");
+        }
     }
     
     #[test]
