@@ -1,3 +1,23 @@
+use clap::{Arg, Command};
+
+const VERSION: &str = env!("CARGO_PKG_VERSION");
+const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
+const LICENSE: &str = include_str!("../LICENSE");
+
 fn main() {
-    println!("Hello, world!");
+    let matches = Command::new("template-rs")
+        .version(VERSION)
+        .author(AUTHORS)
+        .about("A Rust template CLI application")
+        .arg(
+            Arg::new("license")
+                .long("license")
+                .help("Display the license information")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .get_matches();
+
+    if matches.get_flag("license") {
+        println!("{LICENSE}");
+    }
 }

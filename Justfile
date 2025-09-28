@@ -21,8 +21,8 @@ _default: help
     cargo build --release
 
 # Run the binary in debug mode
-@run:
-    cargo run
+@run *args:
+    cargo run -- {{args}}
 
 # Clean the build artifacts
 @clean:
