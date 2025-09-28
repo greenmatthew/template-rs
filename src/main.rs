@@ -1,15 +1,31 @@
-use clap::{Arg, Command};
+use clap::Parser;
 
 // Declare modules
 mod path;
 mod file;
+mod commands;
 
 // Import from modules
 use file::ensure_all_storage_dirs;
+use commands::{Commands, handle_command};
 
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 const LICENSE: &str = include_str!("../LICENSE");
+
+#[derive(Parser)]
+#[command(name = "template-rs")]
+#[command(version = VERSION)]
+#[command(author = AUTHORS)]
+#[command(about = "A Rust template CLI application")]
+struct Cli {
+    /// Display the license information
+    #[arg(long)]
+    license: bool,
+    
+    #[command(subcommand)]
+    command: Option<Commands>,
+}
 
 fn main() {
     // Ensure storage directories exist at startup
@@ -18,19 +34,19 @@ fn main() {
         std::process::exit(1);
     }
 
-    let matches = Command::new("template-rs")
-        .version(VERSION)
-        .author(AUTHORS)
-        .about("A Rust template CLI application")
-        .arg(
-            Arg::new("license")
-                .long("license")
-                .help("Display the license information")
-                .action(clap::ArgAction::SetTrue),
-        )
-        .get_matches();
+    let cli = Cli::parse();
 
-    if matches.get_flag("license") {
+    // Handle license flag first
+    if cli.license {
         println!("{LICENSE}");
+        return;
+    }
+
+    // Handle subcommands
+    if let Some(command) = cli.command {
+        if let Err(e) = handle_command(command) {
+            eprintln!("Error: {e}");
+            std::process::exit(1);
+        }
     }
 }
