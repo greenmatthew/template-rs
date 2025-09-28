@@ -14,7 +14,7 @@ const LICENSE: &str = include_str!("../LICENSE");
 fn main() {
     // Ensure storage directories exist at startup
     if let Err(e) = ensure_all_storage_dirs() {
-        eprintln!("Error creating storage directories: {}", e);
+        eprintln!("Error creating storage directories: {e}");
         std::process::exit(1);
     }
 

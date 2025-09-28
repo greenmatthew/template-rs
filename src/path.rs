@@ -133,4 +133,28 @@ mod tests {
         
         // This would expand to something like ~/projects/my-project/src
         let result = resolve_path("~/projects/${PROJECT_NAME}/src", None);
-        assert!(result.is_
+        assert!(result.is_ok());
+        if let Ok(path) = result {
+            assert!(path.to_string_lossy().contains("my-project"));
+            assert!(path.to_string_lossy().contains("projects"));
+            assert!(path.to_string_lossy().contains("src"));
+        }
+        
+        // Clean up
+        env::remove_var("PROJECT_NAME");
+    }
+    
+    #[test]
+    fn test_relative_path() {
+        let test_dir = PathBuf::from("/test/base");
+        let result = resolve_path("../config.toml", Some(&test_dir)).unwrap();
+        assert_eq!(result, PathBuf::from("/test/base/../config.toml"));
+    }
+    
+    #[test]
+    fn test_dot_slash_prefix() {
+        let test_dir = PathBuf::from("/test/base");
+        let result = resolve_path("./config.toml", Some(&test_dir)).unwrap();
+        assert_eq!(result, PathBuf::from("/test/base/config.toml"));
+    }
+}
