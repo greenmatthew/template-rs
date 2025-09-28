@@ -18,6 +18,7 @@ const LICENSE: &str = include_str!("../LICENSE");
 #[command(version = VERSION)]
 #[command(author = AUTHORS)]
 #[command(about = "A Rust template CLI application")]
+#[command(arg_required_else_help = true)]
 struct Cli {
     /// Display the license information
     #[arg(long)]
