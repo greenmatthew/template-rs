@@ -1,4 +1,5 @@
 use clap::Parser;
+use clap::builder::styling::{AnsiColor, Effects, Styles};
 
 // Declare modules
 mod path;
@@ -15,13 +16,24 @@ const VERSION: &str = env!("CARGO_PKG_VERSION");
 const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 const LICENSE: &str = include_str!("../LICENSE");
 
+fn custom_styles() -> Styles {
+    Styles::styled()
+        .header(AnsiColor::Green.on_default() | Effects::BOLD)
+        .usage(AnsiColor::Green.on_default() | Effects::BOLD)
+        .literal(AnsiColor::Cyan.on_default() | Effects::BOLD)
+        .placeholder(AnsiColor::Blue.on_default())
+        .error(AnsiColor::Red.on_default() | Effects::BOLD)
+        .valid(AnsiColor::Cyan.on_default() | Effects::BOLD)
+        .invalid(AnsiColor::Yellow.on_default() | Effects::BOLD)
+}
+
 #[derive(Parser)]
 #[command(name = env!("CARGO_BIN_NAME"))]
 #[command(version = VERSION)]
 #[command(author = AUTHORS)]
 #[command(about = "A Rust template CLI application")]
 #[command(arg_required_else_help = true)]
-#[command(styles = clap::builder::Styles::styled())] // Use default styled output
+#[command(styles = custom_styles())]
 struct Cli {
     /// Display the license information
     #[arg(long)]
