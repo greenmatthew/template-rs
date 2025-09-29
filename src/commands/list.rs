@@ -6,7 +6,7 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
     print_header();
     
     let mut templates = Template::discover_all()?;
-    filter_by_language(&mut templates, language)?;
+    filter_by_language(&mut templates, language);
     
     if templates.is_empty() {
         print_no_templates_message(language);
@@ -36,7 +36,7 @@ fn print_header() {
     println!("Use `{} author --help` to learn how to create a template\n", env!("CARGO_BIN_NAME"));
 }
 
-fn filter_by_language(templates: &mut Vec<Template>, language: Option<&str>) -> Result<(), Box<dyn std::error::Error>> {
+fn filter_by_language(templates: &mut Vec<Template>, language: Option<&str>) {
     if let Some(lang) = language {
         let lang_lower = lang.to_lowercase();
         
@@ -62,8 +62,6 @@ fn filter_by_language(templates: &mut Vec<Template>, language: Option<&str>) -> 
             });
         }
     }
-    
-    Ok(())
 }
 
 fn print_no_templates_message(language: Option<&str>) {
