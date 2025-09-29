@@ -16,7 +16,7 @@ const AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 const LICENSE: &str = include_str!("../LICENSE");
 
 #[derive(Parser)]
-#[command(name = "template-rs")]
+#[command(name = env!("CARGO_BIN_NAME"))]
 #[command(version = VERSION)]
 #[command(author = AUTHORS)]
 #[command(about = "A Rust template CLI application")]
