@@ -6,70 +6,71 @@ use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum Commands {
-    /// Author a new template
+    /// Create a new template for reuse
     Author {
-        /// Path where to create the new template
-        #[arg(help = "Path where to create the new template")]
+        /// Path where the template will be created
+        #[arg(help = "Path where the template will be created")]
         path: String,
         
-        /// Template name (defaults to directory name)
-        #[arg(short, long, help = "Template name (defaults to directory name)")]
+        /// Name for the template (defaults to directory name)
+        #[arg(short, long, help = "Name for the template (defaults to directory name)")]
         name: Option<String>,
     },
 
-    /// List available templates
+    /// List all available templates
     List {
-        /// Show detailed information about templates
-        #[arg(short, long, help = "Show detailed template information")]
+        /// Show detailed information for each template
+        #[arg(short, long, help = "Show detailed information for each template")]
         verbose: bool,
 
-        #[arg(short, long, help = "Filter by language")]
+        /// Filter templates by programming language
+        #[arg(short, long, help = "Filter templates by programming language")]
         language: Option<String>,
     },
 
-    /// Initialize a new template or project
+    /// Initialize existing directory using an existing template
     Init {
-        /// Template to use for initialization
-        #[arg(help = "Template to use for initialization")]
+        /// Name of the template to use
+        #[arg(help = "Name of the template to use")]
         template: String,
         
-        /// Path where to initialize (defaults to current directory)
-        #[arg(help = "Path where to initialize the template")]
+        /// Target directory (defaults to current directory)
+        #[arg(help = "Target directory (defaults to current directory)")]
         path: Option<String>,
 
-        /// Show what would be copied without actually doing it
+        /// Preview changes without copying files
         #[arg(short = 'n', long, help = "Preview changes without copying files")]
         dry_run: bool,
 
-        /// Force initialization, overwriting existing files
-        #[arg(short, long, help = "Overwrite existing files without prompting")]
+        /// Overwrite existing files
+        #[arg(short, long, help = "Overwrite existing files")]
         force: bool,
     
-        /// Delete files in destination that don't exist in template (dangerous!)
-        #[arg(long, help = "Remove destination files not present in template")]
+        /// Remove files not present in template
+        #[arg(long, help = "Remove files not present in template")]
         delete: bool,
     },
 
-    /// Create a new project from a template
+    /// Create a new directory using an existing template
     New {
-        /// Template to use for the new project
-        #[arg(help = "Template to use for the new project")]
+        /// Name of the template to use
+        #[arg(help = "Name of the template to use")]
         template: String,
         
-        /// Path where to create the new project
-        #[arg(help = "Path where to create the new project")]
+        /// Path where the new directory will be created
+        #[arg(help = "Path where the new directory will be created")]
         path: String,
 
-        /// Show what would be copied without actually doing it
+        /// Preview changes without copying files
         #[arg(short = 'n', long, help = "Preview changes without copying files")]
         dry_run: bool,
 
-        /// Force creation, overwriting existing files
-        #[arg(short, long, help = "Overwrite existing files without prompting")]
+        /// Overwrite existing files
+        #[arg(short, long, help = "Overwrite existing files")]
         force: bool,
     
-        /// Delete files in destination that don't exist in template (dangerous!)
-        #[arg(long, help = "Remove destination files not present in template")]
+        /// Remove files not present in template
+        #[arg(long, help = "Remove files not present in template")]
         delete: bool,
     },
 }
