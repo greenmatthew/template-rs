@@ -1,9 +1,10 @@
+use crate::file::{ensure_template_storage_dir, create_dir_if_missing};
+
 use serde::{Deserialize, Serialize};
+
 use std::path::PathBuf;
 use std::fs;
 use std::path::Path;
-use crate::path::resolve_path;
-use crate::file::{ensure_template_storage_dir, create_dir_if_missing};
 
 const TEMPLATE_CONFIG_FILE: &str = ".template.toml";
 
@@ -131,7 +132,7 @@ impl Template {
         }))
     }
 
-    /// Serializes a TemplateConfig to a TOML file
+    /// Serializes a `TemplateConfig` to a TOML file
     pub fn save_config<P: AsRef<Path>>(
         config: &TemplateConfig, 
         file_path: P,

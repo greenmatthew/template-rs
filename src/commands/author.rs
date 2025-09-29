@@ -3,13 +3,13 @@ use crate::template::{TemplateConfig, Template};
 use std::fs;
 
 pub fn handle_author(
-    path: String,
+    path: &str,
     name: Option<String>,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("Authoring new template...");
     
     // Resolve the target path
-    let target_path = resolve_path(&path, None)?;
+    let target_path = resolve_path(path, None)?;
     println!("Target path: {}", target_path.display());
     
     // Create the directory if it doesn't exist
@@ -31,8 +31,7 @@ pub fn handle_author(
         target_path
             .file_name()
             .and_then(|n| n.to_str())
-            .map(String::from)
-            .unwrap_or_else(|| "unknown".to_string())
+            .map_or_else(|| "unknown".to_string(), String::from)
     });
     
     println!("Creating .template.toml for template '{template_name}'");

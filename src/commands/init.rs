@@ -6,7 +6,7 @@ use std::env;
 use std::process::Command;
 
 pub fn handle_init(
-    template: String,
+    template: &str,
     path: Option<String>,
     dry_run: bool,
     force: bool,
@@ -32,7 +32,7 @@ pub fn handle_init(
     let template_dir = ensure_template_storage_dir()?;
 
     // Find the template
-    let template_info = Template::find(&template)?
+    let template_info = Template::find(template)?
         .ok_or_else(|| format!("Template '{template}' not found. Use 'template-rs list' to see available templates."))?;
     
     println!("Found template: {}", template_info.path.display());

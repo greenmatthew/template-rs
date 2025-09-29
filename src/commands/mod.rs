@@ -51,13 +51,13 @@ pub enum Commands {
 pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error>> {
     match command {
         Commands::Author { path, name } => {
-            author::handle_author(path, name)
+            author::handle_author(&path, name)
         }
         Commands::List { verbose } => {
             list::handle_list(verbose)
         }
         Commands::Init { template, path, dry_run, force, delete } => {
-            init::handle_init(template, path, dry_run, force, delete)
+            init::handle_init(&template, path, dry_run, force, delete)
         }
     }
 }
