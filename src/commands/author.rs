@@ -1,7 +1,6 @@
 use crate::path::resolve_path;
-use crate::template::{Template, TemplateConfig};
+use crate::template::{TemplateConfig, Template};
 use std::fs;
-use std::path::Path;
 
 pub fn handle_author(
     path: String,
@@ -12,18 +11,6 @@ pub fn handle_author(
     // Resolve the target path
     let target_path = resolve_path(&path, None)?;
     println!("Target path: {}", target_path.display());
-    
-    // Determine template name - use provided name or infer from directory
-    let template_name = match name {
-        Some(n) => n,
-        None => {
-            target_path
-                .file_name()
-                .and_then(|name| name.to_str())
-                .ok_or("Could not determine template name from path")?
-                .to_string()
-        }
-    };
     
     // Create the directory if it doesn't exist
     if !target_path.exists() {
@@ -39,11 +26,19 @@ pub fn handle_author(
         return Err(format!("Template already exists at {}", target_path.display()).into());
     }
     
-    // Create the .template.toml file
+    // Determine template name for messaging and config
+    let template_name = name.unwrap_or_else(|| {
+        target_path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .map(String::from)
+            .unwrap_or_else(|| "unknown".to_string())
+    });
+    
     println!("Creating .template.toml for template '{template_name}'");
 
     let sample_config = TemplateConfig {
-        name: Some(template_name.to_string()),
+        name: Some(template_name.clone()),
         description: Some(format!("A template for {template_name}")),
         author: Some("Your Name".to_string()),
         version: Some("1.0.0".to_string()),
