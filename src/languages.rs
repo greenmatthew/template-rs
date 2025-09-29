@@ -83,8 +83,7 @@ pub fn get_display_name(identifier: &str) -> String {
     let map = get_language_map();
     let lower = identifier.to_lowercase();
     map.get(lower.as_str())
-        .map(|lang| lang.display_name.to_string())
-        .unwrap_or_else(|| identifier.to_string())
+        .map_or_else(|| identifier.to_string(), |lang| lang.display_name.to_string())
 }
 
 /// Check if a language identifier is known (case-insensitive)
