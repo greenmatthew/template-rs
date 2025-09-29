@@ -1,5 +1,5 @@
 use crate::path::resolve_path;
-use crate::file::{ensure_template_storage_dir, find_template};
+use crate::file::{ensure_template_storage_dir};
 use crate::template::Template;
 
 use std::env;
@@ -32,7 +32,7 @@ pub fn handle_init(
     let template_dir = ensure_template_storage_dir()?;
 
     // Find the template
-    let template_info = find_template(&template)?
+    let template_info = Template::find(&template)?
         .ok_or_else(|| format!("Template '{template}' not found. Use 'template-rs list' to see available templates."))?;
     
     println!("Found template: {}", template_info.path.display());

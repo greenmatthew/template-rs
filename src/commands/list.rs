@@ -1,8 +1,7 @@
-use crate::file::discover_templates;
 use crate::template::Template;
 
 pub fn handle_list(verbose: bool) -> Result<(), Box<dyn std::error::Error>> {
-    let templates = discover_templates()?;
+    let templates = Template::discover_all()?;
     
     if templates.is_empty() {
         println!("No templates found.");

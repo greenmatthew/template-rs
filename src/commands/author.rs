@@ -1,5 +1,4 @@
 use crate::path::resolve_path;
-use crate::file::save_template_config;
 use crate::template::{Template, TemplateConfig};
 use std::fs;
 use std::path::Path;
@@ -53,7 +52,7 @@ pub fn handle_author(
         metadata: None,
     };
 
-    save_template_config(&sample_config, config_path, false)?;
+    Template::save_config(&sample_config, config_path, false)?;
     
     println!("✅ Template '{template_name}' created successfully!");
     println!("📝 Edit .template.toml to customize your template metadata");
