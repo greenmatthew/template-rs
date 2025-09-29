@@ -1,5 +1,5 @@
 use crate::template::Template;
-use crate::languages::is_known_language;
+use crate::languages::{get_display_name, is_known_language};
 use std::collections::BTreeMap;
 
 pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn std::error::Error>> {
@@ -43,6 +43,11 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         return Ok(());
     }
     
+    // Track if any unrecognized languages were found
+    let has_unrecognized = templates.iter()
+        .filter_map(|t| t.language())
+        .any(|lang| !is_known_language(lang));
+    
     if verbose {
         // Group by language for organized display
         let mut by_language: BTreeMap<String, Vec<&Template>> = BTreeMap::new();
@@ -50,13 +55,14 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         for template in &templates {
             let lang_key = match template.language() {
                 Some(lang) => {
+                    let display = get_display_name(lang);
                     if is_known_language(lang) {
-                        lang.to_lowercase()
+                        display
                     } else {
-                        format!("Unrecognized ({})", lang)
+                        format!("{display}*")
                     }
                 }
-                None => "Unknown".to_string(),
+                None => "\u{FFFF}Unknown".to_string(), // Unicode max char to sort last
             };
             by_language.entry(lang_key).or_default().push(template);
         }
@@ -64,7 +70,9 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         println!("Available templates:\n");
         
         for (lang, templates_in_lang) in by_language {
-            println!("  {lang}:");
+            // Strip the sorting prefix for display
+            let display_lang = lang.trim_start_matches('\u{FFFF}');
+            println!("  {display_lang}:");
             for template in templates_in_lang {
                 println!("    Name: {}", template.display_name());
                 if let Some(language) = template.language() {
@@ -92,13 +100,14 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         for template in &templates {
             let lang_key = match template.language() {
                 Some(lang) => {
+                    let display = get_display_name(lang);
                     if is_known_language(lang) {
-                        lang.to_lowercase()
+                        display
                     } else {
-                        format!("Unrecognized ({})", lang)
+                        format!("{display}*")
                     }
                 }
-                None => "Unknown".to_string(),
+                None => "\u{FFFF}Unknown".to_string(), // Unicode max char to sort last
             };
             by_language.entry(lang_key).or_default().push(template);
         }
@@ -106,7 +115,9 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         println!("Available templates:\n");
         
         for (lang, templates_in_lang) in by_language {
-            println!("  {lang}:");
+            // Strip the sorting prefix for display
+            let display_lang = lang.trim_start_matches('\u{FFFF}');
+            println!("  {display_lang}:");
             for template in templates_in_lang {
                 println!("    Name: {}", template.display_name());
                 if let Some(language) = template.language() {
@@ -120,7 +131,11 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         }
     }
     
-    println!("Use 'template-rs init <template-name>' to initialize a template.");
+    if has_unrecognized {
+        println!("* Unrecognized language (not in standard list)\n");
+    }
+    
+    println!("Use `{} init <template-name>` to initialize a template.", env!("CARGO_BIN_NAME"));
     
     Ok(())
 }
