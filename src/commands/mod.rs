@@ -1,10 +1,22 @@
-pub mod init;
+pub mod author;
 pub mod list;
+pub mod init;
 
 use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// Author a new template
+    Author {
+        /// Path where to create the new template
+        #[arg(help = "Path where to create the new template")]
+        path: String,
+        
+        /// Template name (defaults to directory name)
+        #[arg(short, long, help = "Template name (defaults to directory name)")]
+        name: Option<String>,
+    },
+
     /// List available templates
     List {
         /// Show detailed information about templates
@@ -38,6 +50,9 @@ pub enum Commands {
 
 pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error>> {
     match command {
+        Commands::Author { path, name } => {
+            author::handle_author(path, name)
+        }
         Commands::List { verbose } => {
             list::handle_list(verbose)
         }

@@ -40,7 +40,28 @@ fn is_valid_template<P: AsRef<Path>>(dir_path: P) -> bool {
     dir_path.as_ref().join(TEMPLATE_CONFIG_FILE).exists()
 }
 
-/// Parses a .template.toml file for template metadata
+/// Serializes a TemplateConfig to a TOML file
+pub fn save_template_config<P: AsRef<Path>>(
+    config: &TemplateConfig, 
+    file_path: P,
+    ensure_dir: bool,
+) -> Result<(), Box<dyn std::error::Error>> {
+    let file_path = file_path.as_ref();
+    
+    // Create parent directories if requested
+    if ensure_dir {
+        if let Some(parent) = file_path.parent() {
+            create_dir_if_missing(parent)?;
+        }
+    }
+    
+    let toml_content = toml::to_string_pretty(config)?;
+    fs::write(file_path, toml_content)?;
+    
+    Ok(())
+}
+
+/// Deserializes a .template.toml file for template metadata
 fn parse_template_config<P: AsRef<Path>>(config_path: P) -> Result<TemplateConfig, Box<dyn std::error::Error>> {
     let content = fs::read_to_string(config_path)?;
     let config: TemplateConfig = toml::from_str(&content)?;
