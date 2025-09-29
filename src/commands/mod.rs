@@ -6,24 +6,32 @@ use clap::Subcommand;
 pub enum Commands {
     /// Initialize a new template or project
     Init {
-        /// Name of the template or project to initialize
-        #[arg(help = "Template or project name")]
-        name: Option<String>,
+        /// Template to use for initialization
+        #[arg(help = "Template to use for initialization")]
+        template: String,
         
-        /// Force initialization even if directory exists
-        #[arg(short, long, help = "Force initialization, overwriting existing files")]
+        /// Path where to initialize (defaults to current directory)
+        #[arg(help = "Path where to initialize the template")]
+        path: Option<String>,
+
+        /// Show what would be copied without actually doing it
+        #[arg(short = 'n', long, help = "Preview changes without copying files")]
+        dry_run: bool,
+
+        /// Force initialization, overwriting existing files
+        #[arg(short, long, help = "Overwrite existing files without prompting")]
         force: bool,
-        
-        /// Initialize from a specific template
-        #[arg(short, long, help = "Template to use for initialization")]
-        template: Option<String>,
+    
+        /// Delete files in destination that don't exist in template (dangerous!)
+        #[arg(long, help = "Remove destination files not present in template")]
+        delete: bool,
     },
 }
 
 pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error>> {
     match command {
-        Commands::Init { name, force, template } => {
-            init::handle_init(name, force, template)
+        Commands::Init { template, path, dry_run, force, delete } => {
+            init::handle_init(template, path, dry_run, force, delete)
         }
     }
 }
