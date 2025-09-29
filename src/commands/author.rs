@@ -38,6 +38,7 @@ pub fn handle_author(
 
     let sample_config = TemplateConfig {
         name: Some(template_name.clone()),
+        language: None,
         description: Some(format!("A template for {template_name}")),
         author: Some("Your Name".to_string()),
         version: Some("1.0.0".to_string()),

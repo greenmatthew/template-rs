@@ -1,0 +1,50 @@
+/// Common language identifiers based on GitHub Linguist and markdown conventions
+pub const KNOWN_LANGUAGES: &[&str] = &[
+    "bash",
+    "c",
+    "clojure",
+    "cpp",
+    "csharp",
+    "css",
+    "dart",
+    "dockerfile",
+    "elixir",
+    "fsharp",
+    "go",
+    "haskell",
+    "html",
+    "java",
+    "javascript",
+    "json",
+    "justfile",
+    "kotlin",
+    "lua",
+    "makefile",
+    "markdown",
+    "ocaml",
+    "perl",
+    "php",
+    "powershell",
+    "python",
+    "r",
+    "ruby",
+    "rust",
+    "sass",
+    "scala",
+    "scss",
+    "shell",
+    "sql",
+    "svelte",
+    "swift",
+    "toml",
+    "typescript",
+    "vue",
+    "xml",
+    "yaml",
+];
+
+/// Check if a language is in the known list (case-insensitive)
+pub fn is_known_language(lang: &str) -> bool {
+    KNOWN_LANGUAGES.iter()
+        .any(|&known| known.eq_ignore_ascii_case(lang))
+}

@@ -22,6 +22,9 @@ pub enum Commands {
         /// Show detailed information about templates
         #[arg(short, long, help = "Show detailed template information")]
         verbose: bool,
+
+        #[arg(short, long, help = "Filter by language")]
+        language: Option<String>,
     },
 
     /// Initialize a new template or project
@@ -76,8 +79,8 @@ pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error
         Commands::Author { path, name } => {
             author::handle_author(&path, name)
         }
-        Commands::List { verbose } => {
-            list::handle_list(verbose)
+        Commands::List { verbose, language} => {
+            list::handle_list(verbose, language.as_deref())
         }
         Commands::Init { template, path, dry_run, force, delete } => {
             init::handle_init(&template, path, dry_run, force, delete, false)

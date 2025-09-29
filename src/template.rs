@@ -13,6 +13,8 @@ pub const TEMPLATE_CONFIG_FILE: &str = ".template.toml";
 pub struct TemplateConfig {
     /// Template name (optional, defaults to directory name)
     pub name: Option<String>,
+    /// Template main programming language
+    pub language: Option<String>,
     /// Template description
     pub description: Option<String>,
     /// Template author
@@ -41,7 +43,12 @@ impl Template {
     pub fn display_name(&self) -> &str {
         self.config.name.as_deref().unwrap_or(&self.name)
     }
-    
+
+    /// Get the main programming language if available
+    pub fn language(&self) -> Option<&str> {
+        self.config.language.as_deref()
+    }
+
     /// Get description if available
     pub fn description(&self) -> Option<&str> {
         self.config.description.as_deref()
