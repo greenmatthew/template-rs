@@ -1,5 +1,6 @@
 use crate::path::resolve_path;
-use crate::file::ensure_template_storage_dir;
+use crate::file::{ensure_template_storage_dir, find_template};
+
 use std::env;
 use std::process::Command;
 
@@ -26,9 +27,20 @@ pub fn handle_init(
     
     println!("Target path: {}", target_path.display());
     
-    // Ensure template storage exists and get template path
+    // Ensure template storage exists
     let template_dir = ensure_template_storage_dir()?;
-    let source_template = template_dir.join(&template);
+
+    // Find the template
+    let template_info = find_template(&template)?
+        .ok_or_else(|| format!("Template '{template}' not found. Use 'template-rs list' to see available templates."))?;
+    
+    println!("Found template: {}", template_info.path.display());
+    if let Some(description) = template_info.description() {
+        println!("Description: {description}");
+    }
+    
+    // Rest of the function remains the same, but use template_info.path instead of source_template
+    let source_template = &template_info.path;
     
     if !source_template.exists() {
         return Err(format!("Template '{template}' not found in {}", template_dir.display()).into());
