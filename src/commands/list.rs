@@ -49,10 +49,16 @@ fn filter_by_language(templates: &mut Vec<Template>, language: Option<&str>) -> 
                     .is_some_and(|l| !is_known_language(l))
             });
         } else {
-            // Normal language filtering
+            // Normal language filtering - check if input matches any alias for the template's language
             templates.retain(|t| {
-                t.language()
-                    .is_some_and(|l| l.eq_ignore_ascii_case(lang))
+                t.language().is_some_and(|template_lang| {
+                    // Get display name of template's language
+                    let template_display = get_display_name(template_lang);
+                    // Get display name of user's input
+                    let input_display = get_display_name(lang);
+                    // Match if display names are the same (both resolve to same canonical name)
+                    template_display.eq_ignore_ascii_case(&input_display)
+                })
             });
         }
     }
