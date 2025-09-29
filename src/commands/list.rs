@@ -20,13 +20,13 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         } else if lang_lower == "unrecognized" {
             templates.retain(|t| {
                 t.language()
-                    .map_or(false, |l| !is_known_language(l))
+                    .is_some_and(|l| !is_known_language(l))
             });
         } else {
             // Normal language filtering
             templates.retain(|t| {
                 t.language()
-                    .map_or(false, |l| l.eq_ignore_ascii_case(lang))
+                    .is_some_and(|l| l.eq_ignore_ascii_case(lang))
             });
         }
         
