@@ -31,10 +31,14 @@ fn custom_styles() -> Styles {
 #[command(name = env!("CARGO_BIN_NAME"))]
 #[command(version = VERSION)]
 #[command(author = AUTHORS)]
-#[command(about = "A Rust template CLI application")]
+#[command(about = "A Rust CLI tool for managing programming templates")]
 #[command(arg_required_else_help = true)]
 #[command(styles = custom_styles())]
 struct Cli {
+    /// Display detailed information about this tool
+    #[arg(long)]
+    about: bool,
+
     /// Display the license information
     #[arg(long)]
     license: bool,
@@ -51,6 +55,17 @@ fn main() {
     }
 
     let cli = Cli::parse();
+
+    // Handle about flag first
+    if cli.about {
+        println!("template-rs v{VERSION}");
+        println!("Created by: {AUTHORS}\n");
+        println!("🌐 Website: https://matthewgreen.gg/");
+        println!("📦 GitHub: https://github.com/greenmatthew/template-rs");
+        println!("🔧 Gitea: https://git.matthewgreen.gg/mgreen/template-rs\n");
+        println!("Use `{} --license` to view the license", env!("CARGO_BIN_NAME"));
+        return;
+    }
 
     // Handle license flag first
     if cli.license {
