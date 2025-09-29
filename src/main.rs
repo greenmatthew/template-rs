@@ -4,6 +4,7 @@ use clap::Parser;
 mod path;
 mod file;
 mod commands;
+mod template;
 
 // Import from modules
 use file::ensure_all_storage_dirs;

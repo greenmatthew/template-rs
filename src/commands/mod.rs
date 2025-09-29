@@ -1,9 +1,17 @@
 pub mod init;
+pub mod list;
 
 use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// List available templates
+    List {
+        /// Show detailed information about templates
+        #[arg(short, long, help = "Show detailed template information")]
+        verbose: bool,
+    },
+
     /// Initialize a new template or project
     Init {
         /// Template to use for initialization
@@ -30,6 +38,9 @@ pub enum Commands {
 
 pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error>> {
     match command {
+        Commands::List { verbose } => {
+            list::handle_list(verbose)
+        }
         Commands::Init { template, path, dry_run, force, delete } => {
             init::handle_init(template, path, dry_run, force, delete)
         }

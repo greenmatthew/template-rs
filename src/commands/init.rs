@@ -1,5 +1,6 @@
 use crate::path::resolve_path;
 use crate::file::{ensure_template_storage_dir, find_template};
+use crate::template::Template;
 
 use std::env;
 use std::process::Command;
