@@ -6,7 +6,7 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
     // Print header
     println!("Templates are located in {}", crate::path::TEMPLATE_STORAGE);
     println!("They require a .template.toml file in their root dir");
-    println!("Use `template author --help` to learn how to create a template\n");
+    println!("Use `{} author --help` to learn how to create a template\n", env!("CARGO_BIN_NAME"));
 
     let mut templates = Template::discover_all()?;
     
@@ -32,7 +32,7 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         
         if templates.is_empty() {
             println!("No templates found for language filter '{lang}'.");
-            println!("Use `template list` to see all available templates.");
+            println!("Use `{} list` to see all available templates.", env!("CARGO_BIN_NAME"));
             return Ok(());
         }
     }
