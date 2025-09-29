@@ -74,10 +74,9 @@ fn main() {
     }
 
     // Handle subcommands
-    if let Some(command) = cli.command {
-        if let Err(e) = handle_command(command) {
+    if let Some(command) = cli.command
+        && let Err(e) = handle_command(command) {
             eprintln!("Error: {e}");
             std::process::exit(1);
         }
-    }
 }

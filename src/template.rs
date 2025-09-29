@@ -148,10 +148,8 @@ impl Template {
         let file_path = file_path.as_ref();
         
         // Create parent directories if requested
-        if ensure_dir {
-            if let Some(parent) = file_path.parent() {
-                create_dir_if_missing(parent)?;
-            }
+        if ensure_dir && let Some(parent) = file_path.parent() {
+            create_dir_if_missing(parent)?;
         }
         
         let toml_content = toml::to_string_pretty(config)?;
