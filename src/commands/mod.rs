@@ -46,6 +46,29 @@ pub enum Commands {
         #[arg(long, help = "Remove destination files not present in template")]
         delete: bool,
     },
+
+    /// Create a new project from a template
+    New {
+        /// Template to use for the new project
+        #[arg(help = "Template to use for the new project")]
+        template: String,
+        
+        /// Path where to create the new project
+        #[arg(help = "Path where to create the new project")]
+        path: String,
+
+        /// Show what would be copied without actually doing it
+        #[arg(short = 'n', long, help = "Preview changes without copying files")]
+        dry_run: bool,
+
+        /// Force creation, overwriting existing files
+        #[arg(short, long, help = "Overwrite existing files without prompting")]
+        force: bool,
+    
+        /// Delete files in destination that don't exist in template (dangerous!)
+        #[arg(long, help = "Remove destination files not present in template")]
+        delete: bool,
+    },
 }
 
 pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error>> {
@@ -57,7 +80,10 @@ pub fn handle_command(command: Commands) -> Result<(), Box<dyn std::error::Error
             list::handle_list(verbose)
         }
         Commands::Init { template, path, dry_run, force, delete } => {
-            init::handle_init(&template, path, dry_run, force, delete)
+            init::handle_init(&template, path, dry_run, force, delete, false)
+        }
+        Commands::New { template, path, dry_run, force, delete } => {
+            init::handle_init(&template, Some(path), dry_run, force, delete, true)
         }
     }
 }

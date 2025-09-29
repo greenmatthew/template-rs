@@ -5,12 +5,14 @@ use crate::template::Template;
 use std::env;
 use std::process::Command;
 
+#[allow(clippy::fn_params_excessive_bools)]
 pub fn handle_init(
     template: &str,
     path: Option<String>,
     dry_run: bool,
     force: bool,
     delete: bool,
+    create_dir: bool,
 ) -> Result<(), Box<dyn std::error::Error>> {
     println!("Initializing...");
     println!("Using template: {template}");
@@ -21,9 +23,21 @@ pub fn handle_init(
         None => env::current_dir()?,
     };
     
-    // Check if the target path exists
-    if !target_path.exists() {
-        return Err(format!("Target path does not exist: {}", target_path.display()).into());
+    // Create directory if requested (for 'new' command)
+    if create_dir {
+        if !target_path.exists() {
+            println!("Creating directory: {}", target_path.display());
+            if !dry_run {
+                std::fs::create_dir_all(&target_path)?;
+            }
+        } else if !target_path.is_dir() {
+            return Err(format!("Path exists but is not a directory: {}", target_path.display()).into());
+        }
+    } else {
+        // Check if the target path exists (for 'init' command)
+        if !target_path.exists() {
+            return Err(format!("Target path does not exist: {}", target_path.display()).into());
+        }
     }
     
     println!("Target path: {}", target_path.display());
