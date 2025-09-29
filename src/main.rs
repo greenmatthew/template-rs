@@ -21,6 +21,7 @@ const LICENSE: &str = include_str!("../LICENSE");
 #[command(author = AUTHORS)]
 #[command(about = "A Rust template CLI application")]
 #[command(arg_required_else_help = true)]
+#[command(styles = clap::builder::Styles::styled())] // Use default styled output
 struct Cli {
     /// Display the license information
     #[arg(long)]
