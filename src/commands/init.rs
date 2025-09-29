@@ -1,6 +1,6 @@
 use crate::path::resolve_path;
 use crate::file::{ensure_template_storage_dir};
-use crate::template::Template;
+use crate::template::{Template, TEMPLATE_CONFIG_FILE};
 
 use std::env;
 use std::process::Command;
@@ -63,7 +63,12 @@ pub fn handle_init(
     
     // Build rsync command
     let mut cmd = Command::new("rsync");
-    cmd.arg("-av"); // archive + verbose
+    // -r recursive, -l copy symlinks, -p preserve permissions, -v verbose
+    // Omit -t to NOT preserve timestamps (files get current time)
+    cmd.arg("-rlpv");
+
+    // Exclude the template configuration file
+    cmd.arg(format!("--exclude={TEMPLATE_CONFIG_FILE}"));
     
     if dry_run {
         cmd.arg("--dry-run");

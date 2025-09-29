@@ -6,7 +6,7 @@ use std::path::PathBuf;
 use std::fs;
 use std::path::Path;
 
-const TEMPLATE_CONFIG_FILE: &str = ".template.toml";
+pub const TEMPLATE_CONFIG_FILE: &str = ".template.toml";
 
 /// Template configuration from .template.toml
 #[derive(Debug, Clone, Serialize, Deserialize)]
