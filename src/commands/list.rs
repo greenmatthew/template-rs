@@ -25,8 +25,6 @@ pub fn handle_list(verbose: bool, language: Option<&str>) -> Result<(), Box<dyn 
         println!("* Unrecognized language (not in standard list)\n");
     }
     
-    println!("Use `{} init <template-name>` to initialize a template.", env!("CARGO_BIN_NAME"));
-    
     Ok(())
 }
 
