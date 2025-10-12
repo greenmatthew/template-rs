@@ -81,60 +81,82 @@ impl Template {
         Ok(config)
     }
 
-    /// Discovers all available templates in the template storage directory
+    /// Discovers all available templates in the template storage directory (recursively)
     pub fn discover_all() -> Result<Vec<Self>, Box<dyn std::error::Error>> {
         let template_dir = ensure_template_storage_dir()?;
         let mut templates = Vec::new();
         
-        // Read all entries in the template directory
-        for entry in fs::read_dir(&template_dir)? {
-            let entry = entry?;
-            let path = entry.path();
-            
-            // Skip if not a directory
-            if !path.is_dir() {
-                continue;
-            }
-            
-            // Get the directory name as template name
-            let name = match path.file_name().and_then(|n| n.to_str()) {
-                Some(name) => name.to_string(),
-                None => continue,
-            };
-            
-            // Check if it's a valid template
-            if !Self::is_valid_template(&path) {
-                continue;
-            }
-            
-            // Try to parse template config
-            let config_path = path.join(TEMPLATE_CONFIG_FILE);
-            let config = match Self::parse_config(&config_path) {
-                Ok(config) => config,
-                Err(e) => {
-                    eprintln!("Warning: Failed to parse {}: {e}", config_path.display());
+        // Helper function to recursively search for templates
+        fn search_templates(
+            base_dir: &Path,
+            current_dir: &Path,
+            templates: &mut Vec<Template>,
+        ) -> Result<(), Box<dyn std::error::Error>> {
+            for entry in fs::read_dir(current_dir)? {
+                let entry = entry?;
+                let path = entry.path();
+                
+                // Skip if not a directory
+                if !path.is_dir() {
                     continue;
                 }
-            };
-            
-            templates.push(Self {
-                name,
-                path,
-                config,
-            });
+                
+                // Check if this directory is a valid template
+                if Template::is_valid_template(&path) {
+                    // Calculate the relative path from base_dir as the template name
+                    let name = path.strip_prefix(base_dir)
+                        .ok()
+                        .and_then(|p| p.to_str())
+                        .map(|s| s.replace('\\', "/")) // Normalize path separators
+                        .unwrap_or_else(|| {
+                            path.file_name()
+                                .and_then(|n| n.to_str())
+                                .unwrap_or("unknown")
+                                .to_string()
+                        });
+                    
+                    // Try to parse template config
+                    let config_path = path.join(TEMPLATE_CONFIG_FILE);
+                    let config = match Template::parse_config(&config_path) {
+                        Ok(config) => config,
+                        Err(e) => {
+                            eprintln!("Warning: Failed to parse {}: {e}", config_path.display());
+                            continue;
+                        }
+                    };
+                    
+                    templates.push(Template {
+                        name,
+                        path,
+                        config,
+                    });
+                } else {
+                    // If not a template, recursively search its subdirectories
+                    search_templates(base_dir, &path, templates)?;
+                }
+            }
+            Ok(())
         }
         
-        // Sort templates by display name
-        templates.sort_by(|a, b| a.display_name().cmp(b.display_name()));
+        search_templates(&template_dir, &template_dir, &mut templates)?;
+        
+        // Sort templates by name (which is now the path)
+        templates.sort_by(|a, b| a.name.cmp(&b.name));
         
         Ok(templates)
     }
 
-    /// Finds a specific template by name (matches both directory name and config name)
+    /// Finds a specific template by name (matches both path and config name)
     pub fn find(template_name: &str) -> Result<Option<Self>, Box<dyn std::error::Error>> {
         let templates = Self::discover_all()?;
+        
+        // Normalize the search name (convert backslashes to forward slashes)
+        let normalized_search = template_name.replace('\\', "/");
+        
         Ok(templates.into_iter().find(|t| {
-            t.name == template_name || 
+            // Match against the path (template.name)
+            t.name == normalized_search || 
+            // Also match against the config name if it exists
             t.config.name.as_deref() == Some(template_name)
         }))
     }
