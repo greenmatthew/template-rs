@@ -109,7 +109,10 @@ fn display_verbose(templates: &[Template]) {
         let display_lang = lang.trim_start_matches('\u{FFFF}');
         println!("  {display_lang}:");
         for template in templates_in_lang {
-            println!("    Name: {}", template.display_name());
+            println!("    Path: {}", template.name); // Show the actual path/identifier
+            if let Some(name) = &template.config.name {
+                println!("    Name: {name}");
+            }
             if let Some(language) = template.language() {
                 println!("    Language: {language}");
             }
@@ -140,7 +143,10 @@ fn display_simple(templates: &[Template]) {
         let display_lang = lang.trim_start_matches('\u{FFFF}');
         println!("  {display_lang}:");
         for template in templates_in_lang {
-            println!("    Name: {}", template.display_name());
+            println!("    Path: {}", template.name); // Show the actual path/identifier
+            if let Some(name) = &template.config.name {
+                println!("    Name: {name}");
+            }
             if let Some(language) = template.language() {
                 println!("    Language: {language}");
             }
