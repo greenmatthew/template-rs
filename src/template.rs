@@ -38,12 +38,61 @@ pub struct Template {
     pub config: TemplateConfig,
 }
 
-impl Template {
-    /// Get the display name (config name or directory name)
-    pub fn display_name(&self) -> &str {
-        self.config.name.as_deref().unwrap_or(&self.name)
+/// Helper function to recursively search for templates
+fn search_templates(
+    base_dir: &Path,
+    current_dir: &Path,
+    templates: &mut Vec<Template>,
+) -> Result<(), Box<dyn std::error::Error>> {
+    for entry in fs::read_dir(current_dir)? {
+        let entry = entry?;
+        let path = entry.path();
+        
+        // Skip if not a directory
+        if !path.is_dir() {
+            continue;
+        }
+        
+        // Check if this directory is a valid template
+        if Template::is_valid_template(&path) {
+            // Calculate the relative path from base_dir as the template name
+            let name = path.strip_prefix(base_dir)
+                .ok()
+                .and_then(|p| p.to_str())
+                .map_or_else(
+                    || {
+                        path.file_name()
+                            .and_then(|n| n.to_str())
+                            .unwrap_or("unknown")
+                            .to_string()
+                    },
+                    |s| s.replace('\\', "/") // Normalize path separators
+                );
+            
+            // Try to parse template config
+            let config_path = path.join(TEMPLATE_CONFIG_FILE);
+            let config = match Template::parse_config(&config_path) {
+                Ok(config) => config,
+                Err(e) => {
+                    eprintln!("Warning: Failed to parse {}: {e}", config_path.display());
+                    continue;
+                }
+            };
+            
+            templates.push(Template {
+                name,
+                path,
+                config,
+            });
+        } else {
+            // If not a template, recursively search its subdirectories
+            search_templates(base_dir, &path, templates)?;
+        }
     }
+    Ok(())
+}
 
+impl Template {
     /// Get the main programming language if available
     pub fn language(&self) -> Option<&str> {
         self.config.language.as_deref()
@@ -85,58 +134,6 @@ impl Template {
     pub fn discover_all() -> Result<Vec<Self>, Box<dyn std::error::Error>> {
         let template_dir = ensure_template_storage_dir()?;
         let mut templates = Vec::new();
-        
-        // Helper function to recursively search for templates
-        fn search_templates(
-            base_dir: &Path,
-            current_dir: &Path,
-            templates: &mut Vec<Template>,
-        ) -> Result<(), Box<dyn std::error::Error>> {
-            for entry in fs::read_dir(current_dir)? {
-                let entry = entry?;
-                let path = entry.path();
-                
-                // Skip if not a directory
-                if !path.is_dir() {
-                    continue;
-                }
-                
-                // Check if this directory is a valid template
-                if Template::is_valid_template(&path) {
-                    // Calculate the relative path from base_dir as the template name
-                    let name = path.strip_prefix(base_dir)
-                        .ok()
-                        .and_then(|p| p.to_str())
-                        .map(|s| s.replace('\\', "/")) // Normalize path separators
-                        .unwrap_or_else(|| {
-                            path.file_name()
-                                .and_then(|n| n.to_str())
-                                .unwrap_or("unknown")
-                                .to_string()
-                        });
-                    
-                    // Try to parse template config
-                    let config_path = path.join(TEMPLATE_CONFIG_FILE);
-                    let config = match Template::parse_config(&config_path) {
-                        Ok(config) => config,
-                        Err(e) => {
-                            eprintln!("Warning: Failed to parse {}: {e}", config_path.display());
-                            continue;
-                        }
-                    };
-                    
-                    templates.push(Template {
-                        name,
-                        path,
-                        config,
-                    });
-                } else {
-                    // If not a template, recursively search its subdirectories
-                    search_templates(base_dir, &path, templates)?;
-                }
-            }
-            Ok(())
-        }
         
         search_templates(&template_dir, &template_dir, &mut templates)?;
         
